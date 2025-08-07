@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚦 Sistema de Gestão de Semáforos - Visualização</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            width: 100%;
+        }
+        
+        .csharp-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .code-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .code-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .code-title h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .code-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 20px;
+            border-radius: 10px;
+            max-height: 600px;
+            overflow-y: auto;
+            border: 2px solid #333;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .code-line {
+            display: block;
+            padding: 2px 0;
+        }
+        
+        .code-keyword {
+            color: #569cd6;
+        }
+        
+        .code-string {
+            color: #ce9178;
+        }
+        
+        .code-comment {
+            color: #6a9955;
+        }
+        
+        .code-type {
+            color: #4ec9b0;
+        }
+        
+        .code-number {
+            color: #b5cea8;
+        }
+        
+        .toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #007acc;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-btn:hover {
+            background: #005a9e;
+        }
+        
+        .csharp-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .csharp-header h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .csharp-logo {
+            width: 40px;
+            height: 40px;
+            background: #239120;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .csharp-console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 20px;
+            border-radius: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 2px solid #333;
+        }
+        
+        .csharp-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .csharp-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .csharp-btn.start {
+            background: #28a745;
+            color: white;
+        }
+        
+        .csharp-btn.start:hover {
+            background: #218838;
+        }
+        
+        .csharp-btn.stop {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .csharp-btn.stop:hover {
+            background: #c82333;
+        }
+        
+        .csharp-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .console-line {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .console-header {
+            color: #569cd6;
+            font-weight: bold;
+        }
+        
+        .console-time {
+            color: #9cdcfe;
+        }
+        
+        .console-status {
+            color: #4ec9b0;
+        }
+        
+        .console-alert {
+            color: #f44747;
+            font-weight: bold;
+        }
+        
+        .console-success {
+            color: #b5cea8;
+        }
+        
+        .semaforo-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .semaforo-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .semaforo-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .semaforo-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .semaforo {
+            width: 120px;
+            height: 300px;
+            background: #333;
+            border-radius: 60px;
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px 0;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .luz {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .luz.vermelha {
+            background: #ff4444;
+            box-shadow: 0 0 30px #ff4444, inset 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .luz.vermelha.apagada {
+            background: #660000;
+            box-shadow: none;
+        }
+
+        .luz.amarela {
+            background: #ffaa00;
+            box-shadow: 0 0 30px #ffaa00, inset 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .luz.amarela.apagada {
+            background: #664400;
+            box-shadow: none;
+        }
+
+        .luz.verde {
+            background: #44ff44;
+            box-shadow: 0 0 30px #44ff44, inset 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .luz.verde.apagada {
+            background: #004400;
+            box-shadow: none;
+        }
+        
+        .pedestre-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .pedestre-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .pedestre-semaforo {
+            width: 80px;
+            height: 160px;
+            background: #333;
+            border-radius: 40px;
+            margin: 0 auto 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 15px 0;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+        }
+        
+        .pedestre-luz {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+        
+        .pedestre-luz.vermelho {
+            background: #ff4444;
+            box-shadow: 0 0 20px #ff4444, inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .pedestre-luz.vermelho.apagada {
+            background: #660000;
+            box-shadow: none;
+            color: #333;
+        }
+        
+        .pedestre-luz.verde {
+            background: #44ff44;
+            box-shadow: 0 0 20px #44ff44, inset 0 0 15px rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .pedestre-luz.verde.apagada {
+            background: #004400;
+            box-shadow: none;
+            color: #333;
+        }
+        
+        .pedestre-status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        
+        .pedestre-status.pode-atravessar {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .pedestre-status.aguarde {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .status.aberto {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status.fechado {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .tempo {
+            font-size: 1.1em;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .alerta {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .info-panel {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .passagem-livre {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .passagem-livre.p {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 3px solid #bee5eb;
+        }
+
+        .passagem-livre.s {
+            background: #d4edda;
+            color: #155724;
+            border: 3px solid #c3e6cb;
+        }
+
+        .passagem-livre.parado {
+            background: #f8d7da;
+            color: #721c24;
+            border: 3px solid #f5c6cb;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.stop {
+            background: #dc3545;
+        }
+
+        .btn.stop:hover {
+            background: #c82333;
+        }
+
+        .horario {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .semaforo {
+                width: 100px;
+                height: 250px;
+            }
+            
+            .luz {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .pedestre-semaforo {
+                width: 70px;
+                height: 140px;
+            }
+            
+            .pedestre-luz {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+            
+            .semaforo-grupo {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚦 Sistema de Gestão de Semáforos</h1>
+        <p>Simulação Visual em Tempo Real</p>
+    </div>
+
+    <div class="container">
+        <!-- Grupo Semáforo P -->
+        <div class="semaforo-grupo">
+            <!-- Semáforo P (Veículos) -->
+            <div class="semaforo-container">
+                <div class="semaforo-title">🚗 Semáforo P (Veículos)</div>
+                <div class="semaforo">
+                    <div class="luz vermelha apagada" id="p-vermelho"></div>
+                    <div class="luz amarela apagada" id="p-amarelo"></div>
+                    <div class="luz verde" id="p-verde"></div>
+                </div>
+                <div class="status aberto" id="status-p">🟢 ABERTO</div>
+                <div class="tempo" id="tempo-p">Tempo aberto: 0 segundos</div>
+                <div class="alerta" id="alerta-p" style="display: none;">⚠️ Limite de 1 minuto!</div>
+            </div>
+            
+            <!-- Pedestre P -->
+            <div class="pedestre-container">
+                <div class="pedestre-title">🚶 Pedestre P</div>
+                <div class="pedestre-semaforo">
+                    <div class="pedestre-luz vermelho" id="pedestre-p-vermelho">🚫</div>
+                    <div class="pedestre-luz verde apagada" id="pedestre-p-verde">🚶</div>
+                </div>
+                <div class="pedestre-status aguarde" id="pedestre-status-p">🔴 AGUARDE</div>
+            </div>
+        </div>
+
+        <!-- Grupo Semáforo S -->
+        <div class="semaforo-grupo">
+            <!-- Semáforo S (Veículos) -->
+            <div class="semaforo-container">
+                <div class="semaforo-title">🚗 Semáforo S (Veículos)</div>
+                <div class="semaforo">
+                    <div class="luz vermelha" id="s-vermelho"></div>
+                    <div class="luz amarela apagada" id="s-amarelo"></div>
+                    <div class="luz verde apagada" id="s-verde"></div>
+                </div>
+                <div class="status fechado" id="status-s">🔴 FECHADO</div>
+                <div class="tempo" id="tempo-s">Tempo fechado: 0 segundos</div>
+                <div class="alerta" id="alerta-s" style="display: none;">⚠️ Aguardando liberação</div>
+            </div>
+            
+            <!-- Pedestre S -->
+            <div class="pedestre-container">
+                <div class="pedestre-title">🚶 Pedestre S</div>
+                <div class="pedestre-semaforo">
+                    <div class="pedestre-luz vermelho apagada" id="pedestre-s-vermelho">🚫</div>
+                    <div class="pedestre-luz verde" id="pedestre-s-verde">🚶</div>
+                </div>
+                <div class="pedestre-status pode-atravessar" id="pedestre-status-s">🟢 PODE ATRAVESSAR</div>
+            </div>
+        </div>
+
+        <!-- Painel de Informações -->
+        <div class="info-panel">
+            <div class="horario" id="horario"></div>
+            <div class="passagem-livre p" id="passagem-livre">🚗 PASSAGEM LIVRE: Direção P | 🚶 Pedestres podem atravessar na direção S</div>
+            
+            <div class="controls">
+                <button class="btn" id="btn-start" onclick="iniciarSistema()">▶️ Iniciar Sistema</button>
+                <button class="btn stop" id="btn-stop" onclick="pararSistema()">⏹️ Parar Sistema</button>
+                <button class="btn" onclick="resetarSistema()">🔄 Resetar</button>
+                <button class="btn" onclick="mostrarCodigoFonte()" style="background: #6f42c1; border-color: #6f42c1;">📄 Ver Código C#</button>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                <strong>Regras do Sistema:</strong><br>
+                • Semáforo P não pode ficar fechado por mais de 1 minuto<br>
+                • Sistema alterna automaticamente respeitando as prioridades<br>
+                • Pedestres só atravessam quando semáforo de veículos da direção está fechado<br>
+                • Coordenação automática entre veículos e pedestres<br>
+                • Atualização em tempo real a cada segundo
+            </div>
+        </div>
+        
+        <!-- Seção C# Backend Simulation -->
+        <div class="csharp-section">
+            <div class="csharp-header">
+                <div class="csharp-logo">C#</div>
+                <h2>🖥️ Simulação do Backend C# - Console Output</h2>
+            </div>
+            
+            <div class="csharp-console" id="csharp-console">
+                <div class="console-line console-header">Sistema de Gestão de Semáforos - Backend C#</div>
+                <div class="console-line console-header">==========================================</div>
+                <div class="console-line">Aguardando inicialização...</div>
+            </div>
+            
+            <div class="csharp-controls">
+                <button class="csharp-btn start" id="csharp-start" onclick="iniciarBackendCSharp()">🚀 Iniciar Backend C#</button>
+                <button class="csharp-btn stop" id="csharp-stop" onclick="pararBackendCSharp()" disabled>⏹️ Parar Backend</button>
+            </div>
+        </div>
+        
+        <!-- Seção Código C# -->
+        <div class="code-section" id="code-section" style="display: none;">
+            <div class="code-header">
+                <div class="code-title">
+                    <div class="csharp-logo">C#</div>
+                    <h2>📄 Código Fonte C# - SemaforoGestao.cs</h2>
+                </div>
+                <button class="toggle-btn" onclick="toggleCodeSection()">👁️ Mostrar/Ocultar Código</button>
+            </div>
+            
+            <div class="code-container" id="code-container">
+                <pre><code><span class="code-keyword">using</span> System;
+<span class="code-keyword">using</span> System.Threading;
+
+<span class="code-keyword">namespace</span> <span class="code-type">GestaoSemaforo</span>
+{
+    <span class="code-keyword">public class</span> <span class="code-type">Semaforo</span>
+    {
+        <span class="code-keyword">public string</span> Nome { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        <span class="code-keyword">public bool</span> EstaAberto { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        <span class="code-keyword">public</span> <span class="code-type">DateTime</span> UltimaAlteracao { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        
+        <span class="code-keyword">public</span> Semaforo(<span class="code-keyword">string</span> nome)
+        {
+            Nome = nome;
+            EstaAberto = <span class="code-keyword">true</span>;
+            UltimaAlteracao = <span class="code-type">DateTime</span>.Now;
+        }
+    }
+    
+    <span class="code-keyword">public class</span> <span class="code-type">SemaforoPedestre</span>
+    {
+        <span class="code-keyword">public string</span> Nome { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        <span class="code-keyword">public bool</span> EstaAberto { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        <span class="code-keyword">public</span> <span class="code-type">DateTime</span> UltimaAlteracao { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        <span class="code-keyword">public string</span> DirecaoAssociada { <span class="code-keyword">get</span>; <span class="code-keyword">set</span>; }
+        
+        <span class="code-keyword">public</span> SemaforoPedestre(<span class="code-keyword">string</span> nome, <span class="code-keyword">string</span> direcaoAssociada)
+        {
+            Nome = nome;
+            DirecaoAssociada = direcaoAssociada;
+            EstaAberto = <span class="code-keyword">false</span>;
+            UltimaAlteracao = <span class="code-type">DateTime</span>.Now;
+        }
+    }
+    
+    <span class="code-keyword">public class</span> <span class="code-type">GestorSemaforo</span>
+    {
+        <span class="code-keyword">private</span> <span class="code-type">Semaforo</span> semaforoP;
+        <span class="code-keyword">private</span> <span class="code-type">Semaforo</span> semaforoS;
+        <span class="code-keyword">private</span> <span class="code-type">SemaforoPedestre</span> pedestreP;
+        <span class="code-keyword">private</span> <span class="code-type">SemaforoPedestre</span> pedestreS;
+        <span class="code-keyword">private readonly int</span> tempoFechadoP = <span class="code-number">60000</span>; <span class="code-comment">// 1 minuto em milissegundos</span>
+        <span class="code-keyword">private readonly int</span> tempoFechadoS = <span class="code-number">90000</span>; <span class="code-comment">// 1.5 minutos em milissegundos</span>
+        <span class="code-keyword">private readonly int</span> tempoMinimoPedestre = <span class="code-number">15000</span>; <span class="code-comment">// 15 segundos mínimo para pedestres</span>
+        
+        <span class="code-keyword">public</span> GestorSemaforo()
+        {
+            semaforoP = <span class="code-keyword">new</span> <span class="code-type">Semaforo</span>(<span class="code-string">"P"</span>);
+            semaforoS = <span class="code-keyword">new</span> <span class="code-type">Semaforo</span>(<span class="code-string">"S"</span>);
+            pedestreP = <span class="code-keyword">new</span> <span class="code-type">SemaforoPedestre</span>(<span class="code-string">"Pedestre-P"</span>, <span class="code-string">"P"</span>);
+            pedestreS = <span class="code-keyword">new</span> <span class="code-type">SemaforoPedestre</span>(<span class="code-string">"Pedestre-S"</span>, <span class="code-string">"S"</span>);
+            
+            <span class="code-comment">// Inicializa com P aberto e S fechado</span>
+            semaforoP.EstaAberto = <span class="code-keyword">true</span>;
+            semaforoS.EstaAberto = <span class="code-keyword">false</span>;
+            
+            <span class="code-comment">// Pedestres iniciam conforme semáforos de veículos</span>
+            AtualizarSemaforosPedestres();
+        }
+        
+        <span class="code-keyword">public void</span> IniciarGestao()
+        {
+            <span class="code-type">Console</span>.WriteLine(<span class="code-string">"=== SISTEMA DE GESTÃO DE SEMÁFOROS ==="</span>);
+            <span class="code-type">Console</span>.WriteLine(<span class="code-string">"Semáforo P: Máximo 1 minuto fechado"</span>);
+            <span class="code-type">Console</span>.WriteLine(<span class="code-string">"Semáforo S: Tempo variável"</span>);
+            <span class="code-type">Console</span>.WriteLine(<span class="code-string">"Pedestres: Coordenados com semáforos de veículos"</span>);
+            <span class="code-type">Console</span>.WriteLine(<span class="code-string">"Pressione Ctrl+C para parar\n"</span>);
+            
+            <span class="code-keyword">while</span> (<span class="code-keyword">true</span>)
+            {
+                VerificarEAlternarSemaforos();
+                ExibirStatusSemaforos();
+                <span class="code-type">Thread</span>.Sleep(<span class="code-number">5000</span>); <span class="code-comment">// Verifica a cada 5 segundos</span>
+            }
+        }
+        
+        <span class="code-keyword">private void</span> AtualizarSemaforosPedestres()
+        {
+            <span class="code-type">DateTime</span> agora = <span class="code-type">DateTime</span>.Now;
+            
+            <span class="code-comment">// Pedestre P pode atravessar quando semáforo P (veículos) está fechado</span>
+            <span class="code-keyword">bool</span> novoStatusPedestreP = !semaforoP.EstaAberto;
+            <span class="code-keyword">if</span> (pedestreP.EstaAberto != novoStatusPedestreP)
+            {
+                pedestreP.EstaAberto = novoStatusPedestreP;
+                pedestreP.UltimaAlteracao = agora;
+            }
+            
+            <span class="code-comment">// Pedestre S pode atravessar quando semáforo S (veículos) está fechado</span>
+            <span class="code-keyword">bool</span> novoStatusPedestreS = !semaforoS.EstaAberto;
+            <span class="code-keyword">if</span> (pedestreS.EstaAberto != novoStatusPedestreS)
+            {
+                pedestreS.EstaAberto = novoStatusPedestreS;
+                pedestreS.UltimaAlteracao = agora;
+            }
+        }
+        
+        <span class="code-comment">// ... Métodos adicionais (VerificarEAlternarSemaforos, ExibirStatusSemaforos)</span>
+        <span class="code-comment">// Código completo disponível no arquivo SemaforoGestao.cs</span>
+    }
+    
+    <span class="code-keyword">class</span> <span class="code-type">Program</span>
+    {
+        <span class="code-keyword">static void</span> Main(<span class="code-keyword">string</span>[] args)
+        {
+            <span class="code-keyword">try</span>
+            {
+                <span class="code-type">GestorSemaforo</span> gestor = <span class="code-keyword">new</span> <span class="code-type">GestorSemaforo</span>();
+                gestor.IniciarGestao();
+            }
+            <span class="code-keyword">catch</span> (<span class="code-type">Exception</span> ex)
+            {
+                <span class="code-type">Console</span>.WriteLine($<span class="code-string">"Erro: {ex.Message}"</span>);
+            }
+            <span class="code-keyword">finally</span>
+            {
+                <span class="code-type">Console</span>.WriteLine(<span class="code-string">"\nSistema encerrado."</span>);
+            }
+        }
+    }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SemaforoVisual {
+            constructor() {
+                this.semaforoP = {
+                    nome: 'P',
+                    estaAberto: true,
+                    ultimaAlteracao: new Date()
+                };
+                
+                this.semaforoS = {
+                    nome: 'S',
+                    estaAberto: false,
+                    ultimaAlteracao: new Date()
+                };
+                
+                this.pedestreP = {
+                    nome: 'Pedestre-P',
+                    estaAberto: false,
+                    ultimaAlteracao: new Date(),
+                    direcaoAssociada: 'P'
+                };
+                
+                this.pedestreS = {
+                    nome: 'Pedestre-S',
+                    estaAberto: true,
+                    ultimaAlteracao: new Date(),
+                    direcaoAssociada: 'S'
+                };
+                
+                this.tempoFechadoP = 60000; // 1 minuto
+                this.tempoFechadoS = 90000; // 1.5 minutos
+                this.tempoMinimoPedestre = 15000; // 15 segundos mínimo
+                this.intervalo = null;
+                this.rodando = false;
+                
+                // Inicializa pedestres conforme semáforos
+                this.atualizarSemaforosPedestres();
+            }
+            
+            iniciar() {
+                if (this.rodando) return;
+                
+                this.rodando = true;
+                this.intervalo = setInterval(() => {
+                    this.verificarEAlternar();
+                    this.atualizarInterface();
+                }, 1000);
+                
+                document.getElementById('btn-start').disabled = true;
+                document.getElementById('btn-stop').disabled = false;
+            }
+            
+            parar() {
+                if (!this.rodando) return;
+                
+                this.rodando = false;
+                if (this.intervalo) {
+                    clearInterval(this.intervalo);
+                    this.intervalo = null;
+                }
+                
+                document.getElementById('btn-start').disabled = false;
+                document.getElementById('btn-stop').disabled = true;
+            }
+            
+            resetar() {
+                this.parar();
+                
+                this.semaforoP.estaAberto = true;
+                this.semaforoP.ultimaAlteracao = new Date();
+                this.semaforoS.estaAberto = false;
+                this.semaforoS.ultimaAlteracao = new Date();
+                
+                // Resetar pedestres
+                this.atualizarSemaforosPedestres();
+                
+                this.atualizarInterface();
+            }
+            
+            atualizarSemaforosPedestres() {
+                const agora = new Date();
+                
+                // Pedestre P pode atravessar quando semáforo P (veículos) está fechado
+                const novoStatusPedestreP = !this.semaforoP.estaAberto;
+                if (this.pedestreP.estaAberto !== novoStatusPedestreP) {
+                    this.pedestreP.estaAberto = novoStatusPedestreP;
+                    this.pedestreP.ultimaAlteracao = agora;
+                }
+                
+                // Pedestre S pode atravessar quando semáforo S (veículos) está fechado
+                const novoStatusPedestreS = !this.semaforoS.estaAberto;
+                if (this.pedestreS.estaAberto !== novoStatusPedestreS) {
+                    this.pedestreS.estaAberto = novoStatusPedestreS;
+                    this.pedestreS.ultimaAlteracao = agora;
+                }
+            }
+            
+            verificarEAlternar() {
+                const agora = new Date();
+                
+                // Verifica semáforo P
+                if (!this.semaforoP.estaAberto) {
+                    const tempoFechado = agora - this.semaforoP.ultimaAlteracao;
+                    if (tempoFechado >= this.tempoFechadoP) {
+                        this.alternarSemaforo('P');
+                        return;
+                    }
+                }
+                
+                // Verifica semáforo S
+                if (!this.semaforoS.estaAberto) {
+                    const tempoFechado = agora - this.semaforoS.ultimaAlteracao;
+                    if (tempoFechado >= this.tempoFechadoS && this.semaforoP.estaAberto) {
+                        const tempoAbertoP = agora - this.semaforoP.ultimaAlteracao;
+                        if (tempoAbertoP >= 30000) { // P aberto por pelo menos 30s
+                            this.alternarSemaforo('S');
+                        }
+                    }
+                }
+                
+                // Atualiza semáforos de pedestres
+                this.atualizarSemaforosPedestres();
+            }
+            
+            alternarSemaforo(qual) {
+                const agora = new Date();
+                
+                if (qual === 'P') {
+                    this.semaforoP.estaAberto = true;
+                    this.semaforoP.ultimaAlteracao = agora;
+                    this.semaforoS.estaAberto = false;
+                    this.semaforoS.ultimaAlteracao = agora;
+                } else {
+                    this.semaforoS.estaAberto = true;
+                    this.semaforoS.ultimaAlteracao = agora;
+                    this.semaforoP.estaAberto = false;
+                    this.semaforoP.ultimaAlteracao = agora;
+                }
+            }
+            
+            atualizarInterface() {
+                const agora = new Date();
+                
+                // Atualizar horário
+                document.getElementById('horario').textContent = 
+                    `Horário: ${agora.toLocaleTimeString()}`;
+                
+                // Atualizar semáforo P
+                this.atualizarSemaforo('P', this.semaforoP, agora);
+                
+                // Atualizar semáforo S
+                this.atualizarSemaforo('S', this.semaforoS, agora);
+                
+                // Atualizar pedestres
+                this.atualizarPedestre('P', this.pedestreP, agora);
+                this.atualizarPedestre('S', this.pedestreS, agora);
+                
+                // Atualizar passagem livre
+                this.atualizarPassagemLivre();
+            }
+            
+            atualizarSemaforo(letra, semaforo, agora) {
+                const prefixo = letra.toLowerCase();
+                const tempo = Math.floor((agora - semaforo.ultimaAlteracao) / 1000);
+                
+                // Atualizar luzes
+                if (semaforo.estaAberto) {
+                    document.getElementById(`${prefixo}-vermelho`).className = 'luz vermelha apagada';
+                    document.getElementById(`${prefixo}-amarelo`).className = 'luz amarela apagada';
+                    document.getElementById(`${prefixo}-verde`).className = 'luz verde';
+                } else {
+                    document.getElementById(`${prefixo}-vermelho`).className = 'luz vermelha';
+                    document.getElementById(`${prefixo}-amarelo`).className = 'luz amarela apagada';
+                    document.getElementById(`${prefixo}-verde`).className = 'luz verde apagada';
+                }
+                
+                // Atualizar status
+                const statusEl = document.getElementById(`status-${prefixo}`);
+                if (semaforo.estaAberto) {
+                    statusEl.textContent = '🟢 ABERTO';
+                    statusEl.className = 'status aberto';
+                } else {
+                    statusEl.textContent = '🔴 FECHADO';
+                    statusEl.className = 'status fechado';
+                }
+                
+                // Atualizar tempo
+                const tempoEl = document.getElementById(`tempo-${prefixo}`);
+                const acao = semaforo.estaAberto ? 'aberto' : 'fechado';
+                tempoEl.textContent = `Tempo ${acao}: ${tempo} segundos`;
+                
+                // Atualizar alertas
+                const alertaEl = document.getElementById(`alerta-${prefixo}`);
+                if (letra === 'P' && !semaforo.estaAberto) {
+                    const tempoRestante = 60 - tempo;
+                    if (tempoRestante <= 10 && tempoRestante > 0) {
+                        alertaEl.textContent = `⚠️ Abre em ${tempoRestante}s!`;
+                        alertaEl.style.display = 'block';
+                    } else if (tempoRestante <= 0) {
+                        alertaEl.textContent = '🚨 LIMITE EXCEDIDO!';
+                        alertaEl.style.display = 'block';
+                    } else {
+                        alertaEl.style.display = 'none';
+                    }
+                } else {
+                    alertaEl.style.display = 'none';
+                }
+            }
+            
+            atualizarPedestre(letra, pedestre, agora) {
+                const prefixo = letra.toLowerCase();
+                
+                // Atualizar luzes do pedestre
+                if (pedestre.estaAberto) {
+                    document.getElementById(`pedestre-${prefixo}-vermelho`).className = 'pedestre-luz vermelho apagada';
+                    document.getElementById(`pedestre-${prefixo}-verde`).className = 'pedestre-luz verde';
+                } else {
+                    document.getElementById(`pedestre-${prefixo}-vermelho`).className = 'pedestre-luz vermelho';
+                    document.getElementById(`pedestre-${prefixo}-verde`).className = 'pedestre-luz verde apagada';
+                }
+                
+                // Atualizar status do pedestre
+                const statusEl = document.getElementById(`pedestre-status-${prefixo}`);
+                if (pedestre.estaAberto) {
+                    statusEl.textContent = '🟢 PODE ATRAVESSAR';
+                    statusEl.className = 'pedestre-status pode-atravessar';
+                } else {
+                    statusEl.textContent = '🔴 AGUARDE';
+                    statusEl.className = 'pedestre-status aguarde';
+                }
+            }
+            
+            atualizarPassagemLivre() {
+                const passagemEl = document.getElementById('passagem-livre');
+                
+                if (this.semaforoP.estaAberto && !this.semaforoS.estaAberto) {
+                    passagemEl.textContent = '🚗 PASSAGEM LIVRE: Direção P | 🚶 Pedestres podem atravessar na direção S';
+                    passagemEl.className = 'passagem-livre p';
+                } else if (!this.semaforoP.estaAberto && this.semaforoS.estaAberto) {
+                    passagemEl.textContent = '🚗 PASSAGEM LIVRE: Direção S | 🚶 Pedestres podem atravessar na direção P';
+                    passagemEl.className = 'passagem-livre s';
+                } else if (this.semaforoP.estaAberto && this.semaforoS.estaAberto) {
+                    passagemEl.textContent = '⚠️ ATENÇÃO: Ambos semáforos abertos (situação irregular)';
+                    passagemEl.className = 'passagem-livre parado';
+                } else {
+                    passagemEl.textContent = '🛑 TRÂNSITO PARADO: Ambos semáforos fechados | 🚶 Todos os pedestres podem atravessar';
+                    passagemEl.className = 'passagem-livre parado';
+                }
+            }
+        }
+        
+        // Instância global
+        const sistema = new SemaforoVisual();
+        
+        function iniciarSistema() {
+            sistema.iniciar();
+        }
+        
+        function pararSistema() {
+            sistema.parar();
+        }
+        
+        function resetarSistema() {
+            sistema.resetar();
+        }
+        
+        // ===== SIMULAÇÃO DO BACKEND C# =====
+        
+        class SemaforoCSharp {
+            constructor(nome) {
+                this.nome = nome;
+                this.estaAberto = false;
+                this.ultimaAlteracao = new Date();
+            }
+            
+            abrir() {
+                this.estaAberto = true;
+                this.ultimaAlteracao = new Date();
+            }
+            
+            fechar() {
+                this.estaAberto = false;
+                this.ultimaAlteracao = new Date();
+            }
+            
+            getTempoDecorrido() {
+                return Math.floor((new Date() - this.ultimaAlteracao) / 1000);
+            }
+        }
+        
+        class SemaforoPedestreCSharp {
+            constructor(direcao) {
+                this.direcao = direcao;
+                this.estaAberto = false;
+                this.ultimaAlteracao = new Date();
+            }
+            
+            coordenarComVeiculo(semaforoVeiculo) {
+                // Pedestres só podem atravessar quando veículos estão parados
+                if (!semaforoVeiculo.estaAberto && !this.estaAberto) {
+                    this.estaAberto = true;
+                    this.ultimaAlteracao = new Date();
+                    return true;
+                } else if (semaforoVeiculo.estaAberto && this.estaAberto) {
+                    this.estaAberto = false;
+                    this.ultimaAlteracao = new Date();
+                    return true;
+                }
+                return false;
+            }
+        }
+        
+        class GestorSemaforoCSharp {
+            constructor() {
+                this.semaforoP = new SemaforoCSharp('P');
+                this.semaforoS = new SemaforoCSharp('S');
+                this.pedestreP = new SemaforoPedestreCSharp('P');
+                this.pedestreS = new SemaforoPedestreCSharp('S');
+                this.intervalo = null;
+                this.console = document.getElementById('csharp-console');
+                
+                // Inicializar com P aberto
+                this.semaforoP.abrir();
+                this.semaforoS.fechar();
+            }
+            
+            iniciarGestao() {
+                this.adicionarLinhaConsole('🚀 Iniciando sistema de gestão...', 'console-success');
+                this.adicionarLinhaConsole('📋 Configurações:', 'console-header');
+                this.adicionarLinhaConsole('   • Semáforo P: Máximo 60s fechado', 'console-status');
+                this.adicionarLinhaConsole('   • Semáforo S: Máximo 90s fechado', 'console-status');
+                this.adicionarLinhaConsole('   • Tempo mínimo aberto: 30s', 'console-status');
+                this.adicionarLinhaConsole('   • Verificação a cada 5s', 'console-status');
+                this.adicionarLinhaConsole('', '');
+                
+                this.intervalo = setInterval(() => {
+                    this.verificarEAlternarSemaforos();
+                    this.exibirStatusSemaforos();
+                    this.gerenciarPedestres();
+                }, 5000);
+                
+                // Primeira exibição
+                this.exibirStatusSemaforos();
+            }
+            
+            pararGestao() {
+                if (this.intervalo) {
+                    clearInterval(this.intervalo);
+                    this.intervalo = null;
+                    this.adicionarLinhaConsole('⏹️ Sistema parado pelo usuário.', 'console-alert');
+                    this.adicionarLinhaConsole('', '');
+                }
+            }
+            
+            verificarEAlternarSemaforos() {
+                const tempoP = this.semaforoP.getTempoDecorrido();
+                const tempoS = this.semaforoS.getTempoDecorrido();
+                
+                // Regra 1: P não pode ficar fechado por mais de 60 segundos
+                if (!this.semaforoP.estaAberto && tempoP >= 60) {
+                    this.adicionarLinhaConsole('⚠️ PRIORIDADE: Semáforo P atingiu limite de 60s fechado!', 'console-alert');
+                    this.semaforoP.abrir();
+                    this.semaforoS.fechar();
+                    return;
+                }
+                
+                // Regra 2: Alternância normal respeitando tempo mínimo
+                if (this.semaforoP.estaAberto && tempoP >= 30) {
+                    if (tempoP >= 45) { // Tempo ideal para alternar
+                        this.semaforoP.fechar();
+                        this.semaforoS.abrir();
+                        this.adicionarLinhaConsole('🔄 Alternando: P fechado, S aberto', 'console-status');
+                    }
+                } else if (this.semaforoS.estaAberto && tempoS >= 30) {
+                    if (tempoS >= 60 || (!this.semaforoP.estaAberto && tempoP >= 45)) {
+                        this.semaforoS.fechar();
+                        this.semaforoP.abrir();
+                        this.adicionarLinhaConsole('🔄 Alternando: S fechado, P aberto', 'console-status');
+                    }
+                }
+            }
+            
+            gerenciarPedestres() {
+                let mudancaP = this.pedestreP.coordenarComVeiculo(this.semaforoP);
+                let mudancaS = this.pedestreS.coordenarComVeiculo(this.semaforoS);
+                
+                if (mudancaP || mudancaS) {
+                    this.adicionarLinhaConsole('🚶 Pedestres coordenados com semáforos de veículos', 'console-status');
+                }
+            }
+            
+            exibirStatusSemaforos() {
+                const agora = new Date();
+                const horario = agora.toLocaleTimeString('pt-BR');
+                
+                this.adicionarLinhaConsole('=== STATUS DOS SEMÁFOROS ===', 'console-header');
+                this.adicionarLinhaConsole(`Horário: ${horario}`, 'console-time');
+                this.adicionarLinhaConsole('', '');
+                
+                // Status Semáforo P
+                const statusP = this.semaforoP.estaAberto ? '🟢 ABERTO' : '🔴 FECHADO';
+                const tempoP = this.semaforoP.getTempoDecorrido();
+                const acaoP = this.semaforoP.estaAberto ? 'aberto' : 'fechado';
+                
+                this.adicionarLinhaConsole(`Semáforo P: ${statusP}`, 'console-status');
+                this.adicionarLinhaConsole(`Tempo ${acaoP}: ${tempoP} segundos`, 'console-status');
+                
+                // Alerta para P
+                if (!this.semaforoP.estaAberto) {
+                    const tempoRestante = 60 - tempoP;
+                    if (tempoRestante <= 10 && tempoRestante > 0) {
+                        this.adicionarLinhaConsole(`⚠️ P abre em ${tempoRestante}s!`, 'console-alert');
+                    } else if (tempoRestante <= 0) {
+                        this.adicionarLinhaConsole('🚨 P - LIMITE EXCEDIDO!', 'console-alert');
+                    }
+                }
+                
+                this.adicionarLinhaConsole('', '');
+                
+                // Status Semáforo S
+                const statusS = this.semaforoS.estaAberto ? '🟢 ABERTO' : '🔴 FECHADO';
+                const tempoS = this.semaforoS.getTempoDecorrido();
+                const acaoS = this.semaforoS.estaAberto ? 'aberto' : 'fechado';
+                
+                this.adicionarLinhaConsole(`Semáforo S: ${statusS}`, 'console-status');
+                this.adicionarLinhaConsole(`Tempo ${acaoS}: ${tempoS} segundos`, 'console-status');
+                
+                this.adicionarLinhaConsole('', '');
+                
+                // Status Pedestres
+                const pedestrePStatus = this.pedestreP.estaAberto ? '🟢 PODE ATRAVESSAR' : '🔴 AGUARDE';
+                const pedestreSStatus = this.pedestreS.estaAberto ? '🟢 PODE ATRAVESSAR' : '🔴 AGUARDE';
+                
+                this.adicionarLinhaConsole('--- PEDESTRES ---', 'console-header');
+                this.adicionarLinhaConsole(`Pedestre P: ${pedestrePStatus}`, 'console-status');
+                this.adicionarLinhaConsole(`Pedestre S: ${pedestreSStatus}`, 'console-status');
+                
+                this.adicionarLinhaConsole('', '');
+                
+                // Passagem livre
+                if (this.semaforoP.estaAberto && !this.semaforoS.estaAberto) {
+                    this.adicionarLinhaConsole('🚗 PASSAGEM LIVRE: Direção P', 'console-success');
+                } else if (!this.semaforoP.estaAberto && this.semaforoS.estaAberto) {
+                    this.adicionarLinhaConsole('🚗 PASSAGEM LIVRE: Direção S', 'console-success');
+                } else if (this.semaforoP.estaAberto && this.semaforoS.estaAberto) {
+                    this.adicionarLinhaConsole('⚠️ ATENÇÃO: Ambos semáforos abertos!', 'console-alert');
+                } else {
+                    this.adicionarLinhaConsole('🛑 TRÂNSITO PARADO: Ambos fechados', 'console-alert');
+                }
+                
+                this.adicionarLinhaConsole('==================================================', 'console-header');
+                this.adicionarLinhaConsole('', '');
+                
+                // Auto-scroll para o final
+                this.console.scrollTop = this.console.scrollHeight;
+            }
+            
+            adicionarLinhaConsole(texto, classe = '') {
+                const linha = document.createElement('div');
+                linha.className = `console-line ${classe}`;
+                linha.textContent = texto;
+                this.console.appendChild(linha);
+                
+                // Limitar número de linhas (manter últimas 100)
+                const linhas = this.console.querySelectorAll('.console-line');
+                if (linhas.length > 100) {
+                    linhas[0].remove();
+                }
+            }
+            
+            limparConsole() {
+                this.console.innerHTML = '';
+                this.adicionarLinhaConsole('Sistema de Gestão de Semáforos - Backend C#', 'console-header');
+                this.adicionarLinhaConsole('==========================================', 'console-header');
+            }
+        }
+        
+        // Instância do sistema C#
+        let sistemaBackend = null;
+        
+        function iniciarBackendCSharp() {
+            const startBtn = document.getElementById('csharp-start');
+            const stopBtn = document.getElementById('csharp-stop');
+            
+            if (!sistemaBackend) {
+                sistemaBackend = new GestorSemaforoCSharp();
+            }
+            
+            sistemaBackend.limparConsole();
+            sistemaBackend.iniciarGestao();
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+        
+        function pararBackendCSharp() {
+            const startBtn = document.getElementById('csharp-start');
+            const stopBtn = document.getElementById('csharp-stop');
+            
+            if (sistemaBackend) {
+                sistemaBackend.pararGestao();
+            }
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+        
+        // Função para controlar a exibição da seção de código
+        function toggleCodeSection() {
+            const codeSection = document.getElementById('code-section');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            
+            if (codeSection.style.display === 'none') {
+                codeSection.style.display = 'block';
+                toggleBtn.textContent = '👁️ Ocultar Código';
+                // Scroll suave para a seção de código
+                codeSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                codeSection.style.display = 'none';
+                toggleBtn.textContent = '👁️ Mostrar Código';
+            }
+        }
+        
+        // Função para mostrar a seção de código (chamada pelos botões de controle)
+        function mostrarCodigoFonte() {
+            const codeSection = document.getElementById('code-section');
+            const toggleBtn = document.querySelector('.toggle-btn');
+            
+            codeSection.style.display = 'block';
+            toggleBtn.textContent = '👁️ Ocultar Código';
+            // Scroll suave para a seção de código
+            codeSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Inicializar interface
+        sistema.atualizarInterface();
+        
+        // Auto-iniciar após 2 segundos
+        setTimeout(() => {
+            sistema.iniciar();
+        }, 2000);
+    </script>
+</body>
+</html>
